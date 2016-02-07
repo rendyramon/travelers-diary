@@ -15,7 +15,7 @@ import java.net.URL;
  */
 public class DataWeather extends AsyncTask<Void, Void, WeatherInfo> {
 
-    WeatherInfo weatherInfo = new WeatherInfo();
+    WeatherInfo weatherInfo = null;
     private String latitude;
     private String longitude;
     private double altitude;
@@ -57,7 +57,7 @@ public class DataWeather extends AsyncTask<Void, Void, WeatherInfo> {
 
             JSONObject jsonObject = new JSONObject(resultJson);
 
-            weatherInfo = null;
+             weatherInfo = new WeatherInfo();
 
 
             weatherInfo.setTemp(Float.valueOf(jsonObject.getJSONObject("main").getString("temp").toString()));
