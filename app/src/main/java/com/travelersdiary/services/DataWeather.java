@@ -13,17 +13,17 @@ import java.net.URL;
 /**
  * Created by Vladimir on 06.02.2016.
  */
-public class DataWeather extends AsyncTask <Void, Void, WeatherInfo>{
+public class DataWeather extends AsyncTask<Void, Void, WeatherInfo> {
 
+    WeatherInfo weatherInfo = new WeatherInfo();
     private String latitude;
     private String longitude;
     private double altitude;
-    WeatherInfo weatherInfo;
 
-    DataWeather (LocationPoint locationPoint)
-    {    latitude=Double.toString(locationPoint.getLatitude());
-        longitude=Double.toString(locationPoint.getLongitude());
-        altitude=locationPoint.getLongitude();
+    DataWeather(LocationPoint locationPoint) {
+        latitude = Double.toString(locationPoint.getLatitude());
+        longitude = Double.toString(locationPoint.getLongitude());
+        altitude = locationPoint.getLongitude();
     }
 
     @Override
@@ -32,14 +32,14 @@ public class DataWeather extends AsyncTask <Void, Void, WeatherInfo>{
     }
 
     @Override
-    protected WeatherInfo doInBackground (Void... params) {
+    protected WeatherInfo doInBackground(Void... params) {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String resultJson = "";
         URL url;
 
         try {
-            url = new URL("http://api.openweathermap.org/data/2.5/weather?lat="+latitude+"&lon="+longitude+"&units=metric&appid=7ecc1ea3a34dd7e4677a252c9ddafa8e");
+            url = new URL("http://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&units=metric&appid=7ecc1ea3a34dd7e4677a252c9ddafa8e");
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
@@ -55,9 +55,9 @@ public class DataWeather extends AsyncTask <Void, Void, WeatherInfo>{
             resultJson = buffer.toString();
 
 
-            JSONObject jsonObject=new JSONObject(resultJson);
+            JSONObject jsonObject = new JSONObject(resultJson);
 
-            weatherInfo=new WeatherInfo();
+            weatherInfo = null;
 
 
             weatherInfo.setTemp(Float.valueOf(jsonObject.getJSONObject("main").getString("temp").toString()));
