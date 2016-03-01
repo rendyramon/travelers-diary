@@ -63,7 +63,6 @@ public class LoginActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         ButterKnife.bind(this);
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -75,7 +74,7 @@ public class LoginActivity extends AppCompatActivity implements
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build();
 
-        mGoogleLoginButton.setSize(SignInButton.SIZE_STANDARD);
+        mGoogleLoginButton.setSize(SignInButton.SIZE_WIDE);
 
         mFirebaseRef = new Firebase(Constants.FIREBASE_URL);
 

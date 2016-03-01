@@ -1,5 +1,6 @@
 package com.travelersdiary.fragments;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,6 +19,7 @@ import com.firebase.ui.FirebaseRecyclerAdapter;
 import com.travelersdiary.Constants;
 import com.travelersdiary.R;
 import com.travelersdiary.Utils;
+import com.travelersdiary.activities.RemindItemActivity;
 import com.travelersdiary.adapters.ReminderListAdapter;
 import com.travelersdiary.recyclerview.DividerItemDecoration;
 
@@ -45,8 +47,7 @@ public class ReminderListFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        mReminderList.setLayoutManager(new LinearLayoutManager(getContext()));
-
+        // LayoutManager
         mLayoutManager = new LinearLayoutManager(getContext());
         mReminderList.setLayoutManager(mLayoutManager);
 
@@ -56,6 +57,11 @@ public class ReminderListFragment extends Fragment {
         // decoration
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(getContext());
         mReminderList.addItemDecoration(itemDecoration);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         String userUID = sharedPreferences.getString(Constants.KEY_USER_UID, null);
@@ -72,9 +78,28 @@ public class ReminderListFragment extends Fragment {
 
         if (mAdapter != null) {
             mAdapter.cleanup();
+            mAdapter = new ReminderListAdapter(query);
+            mReminderList.swapAdapter(mAdapter, true);
+        } else {
+            mAdapter = new ReminderListAdapter(query);
+            mReminderList.setAdapter(mAdapter);
         }
-        mAdapter = new ReminderListAdapter(query);
-        mReminderList.setAdapter(mAdapter);
+
+        ((ReminderListAdapter) mAdapter).setOnItemClickListener(new ReminderListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                String key = mAdapter.getRef(position).getKey();
+
+                Intent intent = new Intent(getActivity(), RemindItemActivity.class);
+                intent.putExtra(Constants.KEY_REMINDER_ITEM_REF, key);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+            }
+        });
     }
 
     @Override
