@@ -29,9 +29,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -52,17 +54,22 @@ import com.travelersdiary.activities.DiaryImagesActivity;
 import com.travelersdiary.activities.GalleryAlbumActivity;
 import com.travelersdiary.adapters.DiaryImagesListAdapter;
 import com.travelersdiary.models.DiaryNote;
+import com.travelersdiary.models.LocationPoint;
 import com.travelersdiary.models.Travel;
+import com.travelersdiary.models.WeatherInfo;
+import com.travelersdiary.services.DataWeather;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
 
 public class DiaryFragment extends Fragment {
 
@@ -96,6 +103,12 @@ public class DiaryFragment extends Fragment {
     @Bind(R.id.txt_travel)
     TextView mTxtTravel;
 
+    @Bind(R.id.img_weather_icon)
+    ImageView mImgWeatherIcon;
+
+    @Bind(R.id.txt_weather_info)
+    TextView mTxtWeatherInfo;
+
     private ActionBar mSupportActionBar;
 
     private EditText mEdtDiaryNoteTitle;
@@ -118,6 +131,10 @@ public class DiaryFragment extends Fragment {
     private String mMessage;
     private String mUserUID;
     private String mKey;
+
+
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -194,7 +211,7 @@ public class DiaryFragment extends Fragment {
 
         if (isNewDiaryNote) {
             mItemRef = new Firebase(Utils.getFirebaseUserDiaryUrl(mUserUID));
-            mDiaryNote = new DiaryNote();
+            mDiaryNote = new DiaryNote(); //new note
             initNewDiaryNote(mDiaryNote);
             enableEditingMode();
         } else {
@@ -289,10 +306,26 @@ public class DiaryFragment extends Fragment {
         mSupportActionBar.invalidateOptionsMenu();
     }
 
+    private DataWeather.Callback weatherCallback = new DataWeather.Callback() {
+        @Override
+        public void onCallback(WeatherInfo result) {
+            mDiaryNote.setWeather(result);
+            Glide.with(DiaryFragment.this).load("http://openweathermap.org/img/w/" + result.getWeatherIcon() + ".png").override(90,90).into(mImgWeatherIcon);
+
+            mTxtWeatherInfo.setText("Temperatura:"+result.getTemp()+" ℃ "+"Descrption:"+ result.getWeatherDescription());
+        }
+    };
+
     private void initNewDiaryNote(DiaryNote diaryNote) {
         diaryNote.setTitle("New Diary Note");
         diaryNote.setTravelId("default"); // change to active
         diaryNote.setTravelTitle("Uncategorized"); // change to active
+
+
+        DataWeather dataWeather = new DataWeather(new LocationPoint(50.27, 30.31,1.1), weatherCallback);
+        dataWeather.execute();
+
+
         diaryNote.setTime(System.currentTimeMillis());
 
         mEdtDiaryNoteTitle.setText(diaryNote.getTitle());
@@ -367,6 +400,11 @@ public class DiaryFragment extends Fragment {
                             mImages = mDiaryNote.getPhotos();
                             ((DiaryImagesListAdapter) mImagesRecyclerView.getAdapter()).changeList(mImages);
                             mImagesRecyclerView.scrollToPosition(mImages.size() - 1);
+                        }
+
+                        if (mDiaryNote.getWeather() != null) {
+                            //mImgWeatherIcon.setImageBitmap(.......);
+                            mTxtWeatherInfo.setText(mDiaryNote.getWeather().getWeatherDescription());
                         }
                     }
 

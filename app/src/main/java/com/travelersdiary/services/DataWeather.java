@@ -15,15 +15,21 @@ import java.net.URL;
  */
 public class DataWeather extends AsyncTask<Void, Void, WeatherInfo> {
 
-    WeatherInfo weatherInfo = null;
+    public interface Callback {
+        void onCallback(WeatherInfo result);
+    }
+
+    private WeatherInfo weatherInfo = null;
     private String latitude;
     private String longitude;
     private double altitude;
+    private Callback callback;
 
-    DataWeather(LocationPoint locationPoint) {
+    public DataWeather(LocationPoint locationPoint, Callback callback) {
         latitude = Double.toString(locationPoint.getLatitude());
         longitude = Double.toString(locationPoint.getLongitude());
         altitude = locationPoint.getLongitude();
+        this.callback = callback;
     }
 
     @Override
@@ -79,4 +85,10 @@ public class DataWeather extends AsyncTask<Void, Void, WeatherInfo> {
         return weatherInfo;
     }
 
+    @Override
+    protected void onPostExecute(WeatherInfo weatherInfo) {
+        if (callback != null) {
+            callback.onCallback(weatherInfo);
+        }
+    }
 }
